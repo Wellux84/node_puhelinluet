@@ -42,85 +42,79 @@ let text = `Phonebook has info for ${persons.length} people`
 let dates =  new Date()
 
 app.get('/info', (request, response) => {
-    response.send(`<h1> ${text} </h1><h2>${dates}</h2>`)
-  })
+  response.send(`<h1> ${text} </h1><h2>${dates}</h2>`)
+})
   
 
-  app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
-      response.json(persons)
-    })
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
   })
+})
 
-  app.get('/api/persons/:id', (request, response, next) => {
-      Person.findById(request.params.id).then(person => {
-        if (person) {
-          response.json(person)
-        } else {
-          response.status(404).end()
-        }
-    })
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id).then(person => {
+    if (person) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
+  })
     .catch(error => next(error))
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+  .then(result => {
+  response.status(204).end()
   })
-        
+  .catch(error => next(error))
+})
 
-
-  app.delete('/api/persons/:id', (request, response, next) => {
-    Person.findByIdAndDelete(request.params.id)
-      .then(result => {
-        response.status(204).end()
-      })
-      .catch(error => next(error))
-  })
-
-  const generateId = () => {
-      const Id = Math.floor(Math.random() * 9000000)
-      return String(Id)
-    }
+const generateId = () => {
+const Id = Math.floor(Math.random() * 9000000)
+  return String(Id)
+}
       
-  app.post('/api/persons', (request, response) => {
-    const body = request.body
-      
-    if (!body.name) {
-      return response.status(400).json({ 
-        error: 'name missing' 
-      });
-    }
-
-    if (!body.number) {
-      return response.status(400).json({ 
-        error: 'number missing' 
-      });
-    }
-
-    const existingPerson = persons.find(person => person.name === body.name)
+app.post('/api/persons', (request, response, next) => {
+  const body = request.body
+    
+  if (!body.name) {
+    return response.status(400).json({ 
+      error: 'name missing' 
+    })
+  }
+    
+  if (!body.number) {
+    return response.status(400).json({ 
+      error: 'number missing' 
+    })
+  }
+    
+  Person.findOne({ name: body.name }).then(existingPerson => {
     if (existingPerson) {
-      app.put('/api/persons/:id', (request, response, next) => {
-        const body = request.body
-      
-        const person = {
-          name: body.name,
-          number: body.number,
-        }
-      
-        Person.findByIdAndUpdate(request.params.id, person, { new: true })
-          .then(updatedPerson => {
-            response.json(updatedPerson)
-          })
-          .catch(error => next(error))
-      })
-    }
-
-
-    const person = new Person({
+      const updatedPerson = {
       name: body.name,
       number: body.number,
-      id: generateId(),
-    })
-      
-  person.save().then(savedPerson => {    
-    response.json(savedPerson)
-  })
+      }
+    
+      Person.findByIdAndUpdate(existingPerson._id, updatedPerson, { new: true })
+      .then(updatedPerson => {
+      response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+    } else {
+      const person = new Person({
+      name: body.name,
+      number: body.number,
+      id: generateId(), 
+      })
+    
+      person.save().then(savedPerson => {
+      response.json(savedPerson)
+      }).catch(error => next(error))
+      }
+      }).catch(error => next(error))
 })
   
 
