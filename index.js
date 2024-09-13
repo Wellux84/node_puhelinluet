@@ -15,6 +15,35 @@ morgan.token('body', req => {
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
+let persons = [
+  { 
+    "name": "Arto Hellas", 
+    "number": "040-123456",
+    "id": "1"
+  },
+  { 
+    "name": "Ada Lovelace", 
+    "number": "39-44-5323523",
+    "id": "2"
+  },
+  { 
+    "name": "Dan Abramov", 
+    "number": "12-43-234345",
+    "id": "3"
+  },
+  { 
+    "name": "Mary Poppendieck", 
+    "number": "39-23-6423122",
+    "id": "4"
+  }
+]
+
+let text = `Phonebook has info for ${persons.length} people`
+let dates =  new Date()
+
+app.get('/info', (request, response) => {
+    response.send(`<h1> ${text} </h1><h2>${dates}</h2>`)
+  })
   
 
   app.get('/api/persons', (request, response) => {
