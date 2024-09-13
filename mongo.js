@@ -20,18 +20,18 @@ const noteSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', noteSchema)
 if (number && number.length !== 0 ) {
-const person = new Person({
-  name: `${name}`,
-  number: `${number}`,
-})
+  const person = new Person({
+    name: `${name}`,
+    number: `${number}`,
+  })
 
-person.save().then(result => {
-  console.log(`added ${name} number ${number} to phonebook`)
-  mongoose.connection.close()
-})
+  person.save().then(result => {
+    console.log(`added ${name} number ${number} to phonebook`)
+    mongoose.connection.close()
+  })
 }
 else{
-Person.find({}).then(result => {
+  Person.find({}).then(result => {
     result.forEach(person => {
       console.log(person)
     })
