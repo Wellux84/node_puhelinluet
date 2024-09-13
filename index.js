@@ -1,14 +1,36 @@
-require('dotenv').config()
+
 const express = require('express')
 const app = express()
-const morgan = require('morgan')
-app.use(express.json())
-app.use(express.static('dist'))
-const cors = require('cors')
+require('dotenv').config()
+
 const Person = require('./models/person')
+
+app.use(express.static('dist'))
+
+
+
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+const cors = require('cors')
+
 app.use(cors())
+app.use(express.json())
 
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+const morgan = require('morgan')
 
 morgan.token('body', req => {
   return JSON.stringify(req.body)
@@ -118,22 +140,9 @@ app.post('/api/persons', (request, response, next) => {
 })
   
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
+
 
 app.use(unknownEndpoint)
-
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  }
-
-  next(error)
-}
-
 app.use(errorHandler)
 
 const PORT = process.env.PORT
