@@ -7,7 +7,7 @@ app.use(express.static('dist'))
 const cors = require('cors')
 const Person = require('./models/person')
 app.use(cors())
-app.use(requestLogger)
+
 
 
 morgan.token('body', req => {
