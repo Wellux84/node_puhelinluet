@@ -17,11 +17,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
   
 
-
-  app.get('/info', (request, response) => {
-      response.send(`<h1> ${text} </h1><h2>${dates}</h2>`)
-    })
-
   app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
       response.json(persons)
@@ -71,9 +66,20 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
     const existingPerson = persons.find(person => person.name === body.name)
     if (existingPerson) {
-      return response.status(400).json({ 
-        error: 'name is allready added' 
-      });
+      app.put('/api/persons/:id', (request, response, next) => {
+        const body = request.body
+      
+        const person = {
+          name: body.name,
+          number: body.number,
+        }
+      
+        Person.findByIdAndUpdate(request.params.id, person, { new: true })
+          .then(updatedPerson => {
+            response.json(updatedPerson)
+          })
+          .catch(error => next(error))
+      })
     }
 
 
