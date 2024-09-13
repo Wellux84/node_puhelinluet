@@ -60,11 +60,15 @@ let persons = [
   }
 ]
 
-let text = `Phonebook has info for ${persons.length} people`
-let dates =  new Date()
+app.get('/info', (request, response, next) => {
+  Person.countDocuments({})
+    .then(count => {
+      const text = `Phonebook has info for ${count} people`
+      const dates = new Date()
 
-app.get('/info', (request, response) => {
-  response.send(`<h1> ${text} </h1><h2>${dates}</h2>`)
+      response.send(`<h1>${text}</h1><h2>${dates}</h2>`)
+    })
+    .catch(error => next(error))
 })
   
 
