@@ -112,31 +112,33 @@ app.post('/api/persons', (request, response, next) => {
       error: 'number missing' 
     })
   }
+  
+  Person.findOne({ name: body.name })
+    .then(existingPerson => {
+      if (existingPerson) {
+        Person.findByIdAndUpdate(
+          existingPerson._id,
+          { number: body.number },
+          { new: true } // Palautetaan päivitetty dokumentti
+        )
+        .then(updatedPerson => {
+          response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+      } else {
+        const person = new Person({
+          name: body.name,
+          number: body.number,
+        })
     
-  Person.findOne({ name: body.name }).then(existingPerson => {
-    if (existingPerson) {
-      const updatedPerson = {
-      name: body.name,
-      number: body.number,
+        person.save()
+          .then(savedPerson => {
+            response.json(savedPerson)
+          })
+          .catch(error => next(error))
       }
-    
-      Person.findByIdAndUpdate(existingPerson._id, updatedPerson, { new: true })
-      .then(updatedPerson => {
-      response.json(updatedPerson)
-      })
-      .catch(error => next(error))
-    } else {
-      const person = new Person({
-      name: body.name,
-      number: body.number,
-      id: generateId(), 
-      })
-    
-      person.save().then(savedPerson => {
-      response.json(savedPerson)
-      }).catch(error => next(error))
-      }
-      }).catch(error => next(error))
+    })
+    .catch(error => next(error))
 })
   
 
